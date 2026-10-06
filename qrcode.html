@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code - Mastermind</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text: #1a1a1a;
+            --text-secondary: #666666;
+            --blue: #3b82f6;
+            --purple: #8b5cf6;
+            --green: #10b981;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #1a1a1a;
+                --bg-secondary: #2a2a2a;
+                --text: #ffffff;
+                --text-secondary: #aaaaaa;
+            }
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: var(--bg);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--blue);
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            color: var(--purple);
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            font-size: 1em;
+        }
+
+        .qr-wrapper {
+            background: var(--bg-secondary);
+            border: 3px solid var(--purple);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            display: inline-block;
+            width: 100%;
+        }
+
+        #qrcode {
+            margin: 0 auto;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .instructions {
+            background: rgba(139, 92, 246, 0.1);
+            border-left: 4px solid var(--purple);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            text-align: left;
+        }
+
+        .instructions strong {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--purple);
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            margin-left: 20px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .copy-btn {
+            background: var(--green);
+            color: white;
+        }
+
+        .copy-btn:hover {
+            opacity: 0.9;
+        }
+
+        .info {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .info strong {
+            color: var(--text);
+        }
+
+        .copy-feedback {
+            display: none;
+            color: var(--green);
+            font-weight: 600;
+            margin-top: 10px;
+            animation: fadeInOut 2s;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .url-display {
+            background: var(--bg-secondary);
+            padding: 12px;
+            border-radius: 6px;
+            margin: 15px 0;
+            word-break: break-all;
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            font-family: monospace;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .print-hint {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid var(--purple);
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Retour</a>
+
+        <h1>🎮 QR Code Mastermind</h1>
+        <p class="subtitle">Scannez pour jouer</p>
+
+        <div class="qr-wrapper">
+            <div id="qrcode"></div>
+        </div>
+
+        <div class="instructions">
+            <strong>📋 Instructions :</strong>
+            <ol>
+                <li>Pointez votre téléphone sur le QR code</li>
+                <li>Cliquez sur le lien pour accéder au jeu Mastermind</li>
+                <li>Trouvez la bonne combinaison de couleurs</li>
+                <li>Déverrouillez l'indice secret ! 🔐</li>
+            </ol>
+        </div>
+
+        <div class="url-display" id="urlDisplay"></div>
+
+        <div class="button-group">
+            <button class="copy-btn" onclick="copyUrl()">📋 Copier le lien</button>
+        </div>
+
+        <div class="copy-feedback" id="feedback">✅ Lien copié !</div>
+
+        <div class="info">
+            <strong>💡 Astuce :</strong> Vous pouvez imprimer ce QR Code et le placer à Place Liberté
+            pour que les équipes lancent le jeu Mastermind !
+        </div>
+
+        <div class="print-hint">
+            <strong>🖨️ Pour imprimer :</strong> Utilisez Ctrl+P (Cmd+P sur Mac) et choisissez l'option impression.
+            Le QR Code s'imprimera correctement !
+        </div>
+    </div>
+
+    <script>
+        const mastermindUrl = window.location.origin + window.location.pathname.replace('qrcode.html', 'mastermind.html');
+
+        // Générer le QR code
+        new QRCode(document.getElementById("qrcode"), {
+            text: mastermindUrl,
+            width: 250,
+            height: 250,
+            colorDark: "#8b5cf6",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        // Afficher l'URL
+        document.getElementById("urlDisplay").textContent = mastermindUrl;
+
+        function copyUrl() {
+            navigator.clipboard.writeText(mastermindUrl).then(() => {
+                const feedback = document.getElementById('feedback');
+                feedback.style.display = 'block';
+                setTimeout(() => {
+                    feedback.style.display = 'none';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
